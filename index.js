@@ -104,6 +104,42 @@ app.post('/biodata', async (req, res) => {
 });
 
 
+// PUT
+
+app.put('/biodata/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { nama, nim, kelas } = req.body;
+
+        const result = await pool.query(
+            `UPDATE biodata
+             SET nama = $1,
+                 nim = $2,
+                 kelas = $3
+             WHERE id = $4
+             RETURNING *`,
+            [nama, nim, kelas, id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                message: 'Data tidak ditemukan'
+            });
+        }
+
+        res.status(200).json({
+            message: 'Data berhasil diubah',
+            data: result.rows[0]
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            message: 'Gagal mengubah data',
+            error: err.message
+        });
+    }
+});
 
 
 
